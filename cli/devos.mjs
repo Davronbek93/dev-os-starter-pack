@@ -234,9 +234,11 @@ function doctor() {
     problems.push(`roadmap not found: ${config.roadmap}`);
   }
 
-  // Rename rot: these documents cross-reference each other constantly.
+  // Rename rot: these documents cross-reference each other constantly. Templates are
+  // skeletons — their links point at files the project has not written yet.
   const broken = [];
-  for (const { path } of payload.filter(({ path }) => path.endsWith('.md'))) {
+  const linkable = payload.filter(({ path, entry }) => path.endsWith('.md') && entry.class !== 'template');
+  for (const { path } of linkable) {
     const file = join(root, dest(path, config, manifest));
     if (!existsSync(file)) continue;
     const dir = join(file, '..');
@@ -253,7 +255,7 @@ function doctor() {
 
   say(`devos doctor — ${root}`);
   say(`  installed ${lock.kit.version}, kit here ${version}`);
-  say(`  payload   ${payload.length} files, ${lock.files?.length || 0} tracked`);
+  say(`  payload   ${payload.length} files, ${lock.files?.length || 0} tracked, ${linkable.length} link-checked`);
   if (broken.length) {
     say(`\nbroken links (${broken.length}) — usually a renamed doc:`);
     for (const line of broken.slice(0, 10)) say(`  ${line}`);

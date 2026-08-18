@@ -5,7 +5,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync,
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { sha256 } from './hash.mjs';
-import { isRendered, render } from './render.mjs';
+import { isRendered, relink, render } from './render.mjs';
 
 export const PROPOSAL_DIR = '.devos-update';
 
@@ -56,9 +56,12 @@ export function applyActions({ actions, root, kitRoot, config, manifest, payload
 
     if (kind === 'ADD' || kind === 'UPDATE') {
       const source = bytes(action.path);
-      const contents = isRendered(action.path)
-        ? Buffer.from(render(source.toString('utf8'), { path: action.path, config, manifest, payload }))
-        : source;
+      let contents = source;
+      if (isRendered(action.path)) {
+        contents = Buffer.from(render(source.toString('utf8'), { path: action.path, config, manifest, payload }));
+      } else if (action.path.endsWith('.md')) {
+        contents = Buffer.from(relink(source.toString('utf8'), { path: action.path, config, manifest }));
+      }
       if (!dryRun) {
         write(join(root, action.dest), contents);
         if (config.baseline) write(baselinePath(root, config, action.path), source);

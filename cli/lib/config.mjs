@@ -8,7 +8,7 @@ export const CONFIG_FILE = 'devos.config.json';
 export const DEFAULTS = {
   kitDir: 'devos',
   claudeDir: '.claude',
-  boardDir: 'board',
+  boardDir: null,
   tasksDir: 'tasks',
   roadmap: 'ROADMAP.md',
   conventionsDoc: '',
@@ -55,6 +55,9 @@ export function resolveConfig(root, flags = {}) {
       .split(',').map((point) => point.trim()).filter(Boolean);
   }
   if (flags['no-baseline']) config.baseline = false;
+  // The board is part of the kit; keeping it under kitDir preserves every relative
+  // link between board/README.md and the docs it points at.
+  if (!config.boardDir) config.boardDir = config.kitDir ? `${config.kitDir}/board` : 'board';
   config.parallelismCap = Number(config.parallelismCap) || DEFAULTS.parallelismCap;
   return config;
 }
