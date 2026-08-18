@@ -38,11 +38,16 @@ advisory only; the orchestrator re-derives it at dispatch.
 |---|---|
 | `<tasksDir>/*.md` | **Source of truth.** Task state, wave, branch, blocker — exactly as [10-Task-Lifecycle.md](10-Task-Lifecycle.md) defines them |
 | `<dataDir>/events.jsonl` | **History.** Append-only; one line per change. The story on a card is this file filtered by task |
-| `<dataDir>/queue.jsonl` | **Inbox.** Requests you make from the UI, waiting for an agent session to pick them up |
+| `<dataDir>/queue.jsonl` | **Inbox.** Requests you make from the UI, waiting for an agent session to pick them up — per-machine intent, so the board gitignores it |
 
 Defaults (`tasksDir: tasks`, `dataDir: .devos`, port) live in
-[board/board.config.json](../board/board.config.json). All three are plain text
-and belong in git: the history is reviewable in a diff like everything else.
+[board/board.config.json](../board/board.config.json); a project overrides them in
+`<dataDir>/board.config.json`, outside the kit, so a kit update never clobbers them.
+
+**Git policy.** The history is reviewable in a diff like everything else and belongs in
+git. The queue does not: a request is one machine's intent, and a merge conflict in an
+append-only inbox means nothing. The board writes `<dataDir>/.gitignore` containing
+`queue.jsonl` the first time it writes anything, so this holds without a setup step.
 
 History is **derived, never authoritative**. An agent that edits a task file
 directly is the normal case — the board reconciles on read and records the
@@ -83,6 +88,15 @@ Agents record through the CLI; the task file and the history are updated togethe
 - **The board never runs an agent.** It writes files and queues requests; a human
   starts every session. A board that spawned agents would be the continuous
   scheduler [16-Concurrency-Model.md](16-Concurrency-Model.md) rules out.
+- **One board per repository, rooted at the main worktree.** Parallel agents work in
+  linked worktrees ([16-Concurrency-Model.md](16-Concurrency-Model.md)); the board
+  resolves through them to the main checkout, so every agent records into one history
+  and task state stays out of per-branch diffs. The corollary is binding: **in a
+  worktree, record through `board/cli.mjs`** — hand-editing the worktree's own copy of
+  a task file is invisible to the board until that branch merges.
+- **The board never invents history.** Installed onto a project with existing tasks it
+  writes a single `baseline` event recording where they stood, rather than claiming to
+  have watched them get created.
 - **The board never invents state.** Dragging a card edits the task file's State
   field and nothing else; it does not skip a lifecycle step on your behalf, and a
   drag is recorded with actor `human` so the story stays honest.

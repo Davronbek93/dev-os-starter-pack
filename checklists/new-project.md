@@ -23,7 +23,7 @@ Complete in order. Writing code before this list is done violates [docs/01-Princ
 - [ ] `CLAUDE.md`, DevOS docs, `.claude/agents/` and `.claude/commands/` copied in and adapted
 - [ ] Linter and formatter configured; `.gitignore` and secrets strategy in place (no secrets in repo)
 - [ ] README with setup + run + test commands
-- [ ] `board/` copied in and configured ([docs/17-Board.md](../docs/17-Board.md)): `node board/server.mjs` shows the Phase 0 tasks, and the board data dir (`.devos/` by default) is committed, not gitignored
+- [ ] `board/` copied in and configured ([docs/18-Board.md](../docs/18-Board.md)): `node board/server.mjs` shows the Phase 0 tasks, and the board data dir (`.devos/` by default) is committed, not gitignored
 
 ## 5. CI
 - [ ] CI runs lint + tests + dependency audit on every PR; red blocks merge

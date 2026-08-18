@@ -12,7 +12,7 @@ and a written record of everything that happened.
 
 | | |
 |---|---|
-| **A methodology** | 17 numbered docs ([docs/](docs/)) covering the pipeline from requirements to release, and the rules that make each step checkable |
+| **A methodology** | 18 numbered docs ([docs/](docs/)) covering the pipeline from requirements to release, and the rules that make each step checkable |
 | **Roles with hard boundaries** | Seven single-responsibility roles ([agents/](agents/)), six of them installable as Claude Code subagents — no agent designs, implements, reviews, and tests its own work |
 | **Prompts as slash commands** | `/plan`, `/dispatch`, `/implement`, `/review-task`, `/board`, `/bug` — each with required inputs, steps, and an explicit stop condition |
 | **A board** | A local Kanban view over your task files ([board/](board/)): you add tasks, agents do the rest, and each card carries the story of what happened |
@@ -108,6 +108,12 @@ Six are installed as Claude Code subagents in [.claude/agents/](.claude/agents/)
 The Orchestrator is spec-only — it is the top-level session itself, which cannot
 delegate dispatch to a subagent of its own.
 
+Each role also carries a **model tier** ([docs/17-Model-Tiers.md](docs/17-Model-Tiers.md)):
+the gate roles that decide whether other work is correct — architect, orchestrator,
+reviewer — run at REASONING; the roles bounded by documents someone else authored run at
+BUILD. The orchestrator may upgrade one unusually hard task at dispatch, and never
+downgrades.
+
 ## The board
 
 ```
@@ -129,7 +135,7 @@ dispatch, review verdict, and blocker, with who did it and when.
 
 All three are text and belong in git. Setup, configuration, CLI and HTTP
 reference: [board/README.md](board/README.md). The model and its boundaries:
-[docs/17-Board.md](docs/17-Board.md).
+[docs/18-Board.md](docs/18-Board.md).
 
 ## How work is structured
 
@@ -151,7 +157,7 @@ reference: [board/README.md](board/README.md). The model and its boundaries:
 
 | Path | Contents |
 |---|---|
-| [docs/](docs/) | The methodology, `NN-Title.md`, 01–17 |
+| [docs/](docs/) | The methodology, `NN-Title.md`, 01–18 |
 | [agents/](agents/) | Role definitions — the specification |
 | [.claude/agents/](.claude/agents/) | The same roles as installable subagents — the executable form |
 | [prompts/](prompts/) | Reusable prompts — the specification |
@@ -180,7 +186,8 @@ reference: [board/README.md](board/README.md). The model and its boundaries:
 | 14 | [Performance](docs/14-Performance.md) | Budgets and the checklist that defends them |
 | 15 | [Refactoring](docs/15-Refactoring.md) | When refactoring is allowed and how it stays behavior-free |
 | 16 | [Concurrency Model](docs/16-Concurrency-Model.md) | Waves, Touches disjointness, serialization points, CI contention |
-| 17 | [Board](docs/17-Board.md) | The board's data model, recording protocol, and boundaries |
+| 17 | [Model Tiers](docs/17-Model-Tiers.md) | Which LLM tier each role runs on, and the upgrade-only override rule |
+| 18 | [Board](docs/18-Board.md) | The board's data model, recording protocol, and boundaries |
 
 ## Requirements
 

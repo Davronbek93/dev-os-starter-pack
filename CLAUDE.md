@@ -10,7 +10,7 @@ The one exception is `board/` — a small, dependency-free Node component (the K
 
 ## Structure
 
-- `docs/` — Numbered methodology docs (01–17) that define the DevOS process. The core pipeline (docs/02): Requirements → Architecture → Data Model → Contracts → Roadmap → Tasks → Implementation → Review → Release. Task states (docs/10): BACKLOG → READY → IN_PROGRESS → REVIEW → TESTING → DONE → RELEASED. docs/11 and docs/12 are indexes of the prompts and agent roles. docs/16 is the concurrency model: wave-based dispatch, Touches disjointness, worktree isolation, serialized merges. docs/17 is the board: the Kanban view over the task files, its history/queue files, and the recording protocol agents follow.
+- `docs/` — Numbered methodology docs (01–18) that define the DevOS process. The core pipeline (docs/02): Requirements → Architecture → Data Model → Contracts → Roadmap → Tasks → Implementation → Review → Release. Task states (docs/10): BACKLOG → READY → IN_PROGRESS → REVIEW → TESTING → DONE → RELEASED. docs/11 and docs/12 are indexes of the prompts and agent roles. docs/16 is the concurrency model: wave-based dispatch, Touches disjointness, worktree isolation, serialized merges. docs/17 is the model-tier policy: REASONING for the gate roles, BUILD for the execution roles, upgrade-only overrides. docs/18 is the board: the Kanban view over the task files, its history/queue files, and the recording protocol agents follow.
 - `agents/` — Human-readable role definitions (architect, orchestrator, backend-engineer, frontend-engineer, reviewer, tester, devops). Each has a strict mandate, responsibilities, hard boundaries, and inputs → outputs.
 - `.claude/agents/` — Six of the roles as installable Claude Code subagents (frontmatter + system prompt). The orchestrator is spec-only — realized by the top-level session, never installed. Keep each installed role in sync with its `agents/` counterpart: `agents/` is the specification, `.claude/agents/` is the executable form.
 - `prompts/` — Reusable prompts (planning, implementation, review, dispatch, board, bug), each with goal, required inputs, steps, and an explicit stop condition.
@@ -27,7 +27,7 @@ The one exception is `board/` — a small, dependency-free Node component (the K
 - Files cross-reference each other heavily with relative links; when renaming or moving a file, grep for links to it and fix them.
 - Every prompt must state its required inputs and a stop condition; every role must state what it must never do.
 - **Board code follows the templates, not the other way round**: `board/lib/taskfile.mjs` both parses `templates/task-template.md`'s shape (header `- **Field:** value` lines, `##` sections) and writes a skeleton mirroring it in `createTask`. Changing the template's field names or section headings means updating both in the same PR — and the board must degrade gracefully, never rewrite prose it does not understand.
-- The board is a view and an inbox: it must never spawn an agent, invent a task state, or become a second source of truth for task data (docs/17-Board.md).
+- The board is a view and an inbox: it must never spawn an agent, invent a task state, or become a second source of truth for task data (docs/18-Board.md).
 
 ## Operating Rules (DevOS methodology)
 

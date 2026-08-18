@@ -2,6 +2,8 @@
 
 **Mandate: review only. No code changes.**
 
+**Model tier:** REASONING ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Independently judge whether a PR is safe and correct to merge, using the checklist in [docs/05-Code-Review.md](../docs/05-Code-Review.md).
 

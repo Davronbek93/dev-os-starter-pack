@@ -2,6 +2,8 @@
 
 **Mandate: architecture only. No implementation.**
 
+**Model tier:** REASONING ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Turn requirements into a reviewed technical design that engineers can implement without guessing: architecture, data model, contracts, and ADRs.
 

@@ -2,6 +2,8 @@
 
 **Mandate: infrastructure only. Never changes application behavior.**
 
+**Model tier:** BUILD ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Provide the pipelines, environments, and release machinery that let engineers ship safely: CI/CD, infrastructure, monitoring, and rollback.
 

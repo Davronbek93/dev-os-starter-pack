@@ -25,6 +25,6 @@ For every finding report: file and line, severity (**blocking** / `nit:`), the p
 
 End with a verdict: **APPROVE** or **REQUEST CHANGES**, plus a one-paragraph summary.
 
-Record the verdict on the board without touching the code: `node board/cli.mjs note <task-id> "<APPROVE|REQUEST CHANGES> — <n> blocking, <n> nits" --type review --actor agent:reviewer` ([docs/17-Board.md](../docs/17-Board.md)).
+Record the verdict on the board without touching the code: `node board/cli.mjs note <task-id> "<APPROVE|REQUEST CHANGES> — <n> blocking, <n> nits" --type review --actor agent:reviewer` ([docs/18-Board.md](../docs/18-Board.md)).
 
 **Stop condition:** deliver the verdict and findings only. Do not fix anything, even trivial issues — findings go back to the author.
