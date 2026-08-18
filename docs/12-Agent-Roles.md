@@ -5,7 +5,7 @@ Work is divided among single-responsibility roles. Each role does only its own j
 | Role | File | Owns | Must never |
 |---|---|---|---|
 | Architect | [agents/architect.md](../agents/architect.md) | Architecture, data model, contracts, ADRs | Write implementation code |
-| Orchestrator | [agents/orchestrator.md](../agents/orchestrator.md) | Dependency graph, wave computation, dispatch, merge sequencing, task-state bookkeeping | Write implementation code; review code; merge unreviewed branches; assign one task to two agents |
+| Orchestrator | [agents/orchestrator.md](../agents/orchestrator.md) | Dependency graph, wave computation, dispatch, merge sequencing, bookkeeping for the transitions it decides | Write implementation code; review code; merge unreviewed branches; assign one task to two agents; record a transition another role owns |
 | Backend Engineer | [agents/backend-engineer.md](../agents/backend-engineer.md) | Server-side implementation of tasks | Change contracts unilaterally; touch frontend |
 | Frontend Engineer | [agents/frontend-engineer.md](../agents/frontend-engineer.md) | Client-side implementation of tasks | Change contracts unilaterally; touch backend |
 | Reviewer | [agents/reviewer.md](../agents/reviewer.md) | Code review verdicts | Push fixes to the branch under review |

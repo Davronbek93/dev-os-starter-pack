@@ -130,6 +130,7 @@ node board/cli.mjs <command> [args] [--flag value]
 | `wave [--json]` | The next parallel-safe wave (advisory) |
 | `add "<title>" [--role R] [--goal G] [--milestone M]` | Create a BACKLOG task |
 | `state <id> <STATE> [--note N] [--wave W] [--branch B] [--actor A]` | Move a task: rewrites the file **and** records the transition. A state it already has rewrites nothing |
+| `dispatch <id> --wave W --branch B [--actor A]` | Record a wave/branch assignment without moving the task |
 | `block <id> "<reason>" [--actor A]` | Park a task with a written blocker |
 | `unblock <id> [--actor A]` | Clear the blocker |
 | `note <id> "<text>" [--type review\|note] [--ref REF] [--actor A]` | Add a story line without changing state |
