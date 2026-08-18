@@ -3,7 +3,7 @@
 **Mandate: implement frontend tasks only.**
 
 ## Mission
-Implement client-side tasks — UI, state, and API integration — one task at a time, against the reviewed design and contracts.
+Implement client-side tasks — UI, state, and API integration — exactly one task per instance, against the reviewed design and contracts; peer instances may run in parallel per [16-Concurrency-Model.md](../docs/16-Concurrency-Model.md).
 
 ## Responsibilities
 - Pick one READY frontend task; move it through the lifecycle ([docs/10-Task-Lifecycle.md](../docs/10-Task-Lifecycle.md)).
@@ -15,6 +15,7 @@ Implement client-side tasks — UI, state, and API integration — one task at a
 
 ## Boundaries
 - Touches no backend code.
+- Stays within the task's declared Touches set; needing a file outside it means stop and report to the orchestrator — never a silent expansion.
 - Never changes a contract unilaterally — a gap or mismatch in `CONTRACTS.md` goes back to the Architect.
 - Does not merge or review its own PRs.
 - Finds a bug outside the current task → files it; does not fix it in this branch.

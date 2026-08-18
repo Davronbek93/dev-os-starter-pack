@@ -6,7 +6,7 @@ The DevOS pipeline every project follows:
 Requirements -> Architecture -> Data Model -> Contracts -> Roadmap -> Tasks -> Implementation -> Review -> Release
 ```
 
-Each stage produces a written artifact. A stage does not begin until the previous stage's artifact exists and has been reviewed.
+Each stage produces a written artifact. A pipeline *stage* does not begin until the previous stage's artifact exists and has been reviewed — this barrier applies between stages, not between tasks: within the Implementation stage, tasks parallelize per [16-Concurrency-Model.md](16-Concurrency-Model.md).
 
 ## Stages and artifacts
 
