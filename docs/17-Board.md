@@ -98,3 +98,6 @@ Agents record through the CLI; the task file and the history are updated togethe
 2. Adjust [board/board.config.json](../board/board.config.json) if the project
    keeps tasks somewhere other than `tasks/`.
 3. Run `node board/server.mjs` and leave it open next to your Claude Code session.
+
+The operator's manual — configuration keys, the event and queue schemas, the
+full CLI and HTTP reference, troubleshooting — is [board/README.md](../board/README.md).
