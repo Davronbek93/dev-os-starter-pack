@@ -13,25 +13,25 @@ A reusable operating system for AI-assisted software development with Claude Cod
 
 | Directory | Contents |
 |---|---|
-| [docs/](docs/) | The methodology, numbered 01–15: principles, architecture pipeline, lifecycle, Definition of Done, code review, docs standards, git workflow, testing, ADRs, task lifecycle, prompt/agent indexes, security, performance, refactoring |
-| [agents/](agents/) | Role definitions: architect, backend/frontend engineer, reviewer, tester, devops — each with a mission, responsibilities, and hard boundaries |
-| [prompts/](prompts/) | Reusable prompts: planning, implementation, review, bug investigation |
+| [docs/](docs/) | The methodology, numbered 01–16: principles, architecture pipeline, lifecycle, Definition of Done, code review, docs standards, git workflow, testing, ADRs, task lifecycle, prompt/agent indexes, security, performance, refactoring, concurrency model |
+| [agents/](agents/) | Role definitions: architect, orchestrator, backend/frontend engineer, reviewer, tester, devops — each with a mission, responsibilities, and hard boundaries |
+| [prompts/](prompts/) | Reusable prompts: planning, implementation, review, dispatch, bug investigation |
 | [templates/](templates/) | Skeletons: project docs, roadmap, task, PR |
 | [checklists/](checklists/) | New-project and release checklists |
 | [.claude/agents/](.claude/agents/) | The roles as installable Claude Code **subagents** |
-| [.claude/commands/](.claude/commands/) | The prompts as **slash commands**: `/plan`, `/implement`, `/review-task`, `/bug` |
+| [.claude/commands/](.claude/commands/) | The prompts as **slash commands**: `/plan`, `/implement`, `/review-task`, `/dispatch`, `/bug` |
 
 ## Using it in a new project
 
 1. Copy this repo's contents (or the parts you need) into your project — at minimum `docs/`, `.claude/`, and `CLAUDE.md`.
 2. Adapt `CLAUDE.md` and the templates to the project's stack and commands.
 3. Run [checklists/new-project.md](checklists/new-project.md) top to bottom **before writing code**.
-4. Drive work through the slash commands: `/plan` a milestone, `/implement` one task at a time, `/review-task` the result, `/bug` when something breaks.
+4. Drive work through the slash commands: `/plan` a milestone into a dependency graph, `/implement` one task (or `/dispatch` a wave of independent tasks in parallel worktrees), `/review-task` the result, `/bug` when something breaks.
 
 ## Core ideas
 
 - **Architecture first** — the pipeline in [docs/02-Architecture-Guide.md](docs/02-Architecture-Guide.md): Requirements → Architecture → Data Model → Contracts → Roadmap → Tasks → Implementation → Review → Release.
-- **One task at a time** — tasks move through the states in [docs/10-Task-Lifecycle.md](docs/10-Task-Lifecycle.md); done means the full [Definition of Done](docs/04-Definition-of-Done.md).
+- **One task per agent instance** — tasks move through the states in [docs/10-Task-Lifecycle.md](docs/10-Task-Lifecycle.md); done means the full [Definition of Done](docs/04-Definition-of-Done.md). Multiple agents may work in parallel when dispatched as a wave with disjoint footprints ([docs/16-Concurrency-Model.md](docs/16-Concurrency-Model.md)).
 - **Documentation is the source of truth** — code changes synchronize docs in the same PR ([docs/06-Documentation-Standards.md](docs/06-Documentation-Standards.md)).
 - **Independent checks** — the agent roles in [docs/12-Agent-Roles.md](docs/12-Agent-Roles.md) are deliberately separated so no agent designs, implements, reviews, and tests its own work.
 

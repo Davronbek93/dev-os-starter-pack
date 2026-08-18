@@ -8,11 +8,11 @@ DevOS ("Development Operating System") is a reusable kit for AI-assisted softwar
 
 ## Structure
 
-- `docs/` — Numbered methodology docs (01–15) that define the DevOS process. The core pipeline (docs/02): Requirements → Architecture → Data Model → Contracts → Roadmap → Tasks → Implementation → Review → Release. Task states (docs/10): BACKLOG → READY → IN_PROGRESS → REVIEW → TESTING → DONE → RELEASED. docs/11 and docs/12 are indexes of the prompts and agent roles.
-- `agents/` — Human-readable role definitions (architect, backend-engineer, frontend-engineer, reviewer, tester, devops). Each has a strict mandate, responsibilities, hard boundaries, and inputs → outputs.
-- `.claude/agents/` — The same six roles as installable Claude Code subagents (frontmatter + system prompt). Keep each in sync with its `agents/` counterpart: `agents/` is the specification, `.claude/agents/` is the executable form.
-- `prompts/` — Reusable prompts (planning, implementation, review, bug), each with goal, required inputs, steps, and an explicit stop condition.
-- `.claude/commands/` — The prompts as slash commands: `/plan`, `/implement`, `/review-task`, `/bug`. Same sync rule: `prompts/` is the specification.
+- `docs/` — Numbered methodology docs (01–16) that define the DevOS process. The core pipeline (docs/02): Requirements → Architecture → Data Model → Contracts → Roadmap → Tasks → Implementation → Review → Release. Task states (docs/10): BACKLOG → READY → IN_PROGRESS → REVIEW → TESTING → DONE → RELEASED. docs/11 and docs/12 are indexes of the prompts and agent roles. docs/16 is the concurrency model: wave-based dispatch, Touches disjointness, worktree isolation, serialized merges.
+- `agents/` — Human-readable role definitions (architect, orchestrator, backend-engineer, frontend-engineer, reviewer, tester, devops). Each has a strict mandate, responsibilities, hard boundaries, and inputs → outputs.
+- `.claude/agents/` — Six of the roles as installable Claude Code subagents (frontmatter + system prompt). The orchestrator is spec-only — realized by the top-level session, never installed. Keep each installed role in sync with its `agents/` counterpart: `agents/` is the specification, `.claude/agents/` is the executable form.
+- `prompts/` — Reusable prompts (planning, implementation, review, dispatch, bug), each with goal, required inputs, steps, and an explicit stop condition.
+- `.claude/commands/` — The prompts as slash commands: `/plan`, `/implement`, `/review-task`, `/dispatch`, `/bug`. Same sync rule: `prompts/` is the specification.
 - `templates/` — Skeletons for project docs, roadmaps, tasks, and PRs.
 - `checklists/` — New-project and release checklists.
 
@@ -29,7 +29,7 @@ DevOS ("Development Operating System") is a reusable kit for AI-assisted softwar
 These are the rules this repo exists to promote; follow them when applying DevOS in a project:
 
 - Read docs before coding; architecture first.
-- One task at a time; small tasks, small PRs.
+- One task per agent instance; small tasks, small PRs. Agents may run in parallel only when dispatched as a wave with disjoint Touches sets (docs/16).
 - Documentation is source of truth — sync it in the same PR.
 - Meet the full Definition of Done (docs/04) before calling anything done.
 - Git: `feature/*` branches, conventional commits, squash-merge.

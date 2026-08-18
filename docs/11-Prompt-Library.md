@@ -4,9 +4,10 @@ Reusable prompts for driving Claude Code through the DevOS workflow. Full texts 
 
 | Prompt | File | Slash command | Use when |
 |---|---|---|---|
-| Planning / Task Splitter | [prompts/planning.md](../prompts/planning.md) | `/plan` | Turning requirements or a milestone into small, ordered tasks |
+| Planning / Task Splitter | [prompts/planning.md](../prompts/planning.md) | `/plan` | Turning requirements or a milestone into a parallelizable graph of small tasks |
 | Implementation | [prompts/implementation.md](../prompts/implementation.md) | `/implement` | Executing exactly one READY task end to end |
 | Review | [prompts/review.md](../prompts/review.md) | `/review-task` | Reviewing a diff or PR against the review checklist |
+| Dispatch | [prompts/dispatch.md](../prompts/dispatch.md) | `/dispatch` | Executing the next wave of READY tasks in parallel worktrees and landing their merges in order |
 | Bug Investigation | [prompts/bug.md](../prompts/bug.md) | `/bug` | Diagnosing a defect before any fix is written |
 
 ## Conventions for adding prompts

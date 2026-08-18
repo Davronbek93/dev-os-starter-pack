@@ -23,5 +23,5 @@ Nothing merges without passing lint and tests, and without tests that cover the 
 ## 7. Root cause before fix
 Bugs are investigated until the actual cause is understood and reproduced. Patching symptoms creates recurring work.
 
-## 8. One task at a time
-An agent (human or AI) works on exactly one task from start to done. Context switching multiplies errors; batching unrelated changes breaks reviewability.
+## 8. One task per agent instance
+An agent (human or AI) works on exactly one task from start to done; multiple agents may run concurrently, each holding one task, per [16-Concurrency-Model.md](16-Concurrency-Model.md). Context switching multiplies errors; batching unrelated changes breaks reviewability.
