@@ -1,0 +1,40 @@
+{
+  "manifestVersion": 1,
+  "kit": "dev-os-starter-pack",
+  "version": "0.3.0",
+  "entries": [
+    { "glob": "docs/**/*.md", "class": "managed", "to": "kit" },
+    { "glob": "agents/*.md", "class": "managed", "to": "kit" },
+    { "glob": "prompts/*.md", "class": "managed", "to": "kit" },
+    { "glob": "checklists/*.md", "class": "managed", "to": "kit" },
+    { "glob": "templates/*.md", "class": "template", "to": "kit" },
+    {
+      "path": "templates/task-template.md",
+      "class": "managed",
+      "to": "kit",
+      "couples": ["board/lib/taskfile.mjs"],
+      "note": "the board parser reads this file's field names and section headings"
+    },
+    { "glob": "board/**", "class": "code", "unit": "board", "to": "board" },
+    { "glob": "board/test/**", "class": "excluded" },
+    { "path": "board/board.config.json", "class": "generated-once", "to": "board" },
+    { "glob": ".claude/agents/*.md", "class": "generated-once", "to": "claude", "render": true },
+    { "glob": ".claude/commands/*.md", "class": "generated-once", "to": "claude", "render": true },
+    { "path": "install/CLAUDE-devos-section.md", "class": "template", "to": "kit" }
+  ],
+  "specMap": {
+    ".claude/commands/plan.md": "prompts/planning.md",
+    ".claude/commands/implement.md": "prompts/implementation.md",
+    ".claude/commands/review-task.md": "prompts/review.md",
+    ".claude/commands/dispatch.md": "prompts/dispatch.md",
+    ".claude/commands/board.md": "prompts/board.md",
+    ".claude/commands/bug.md": "prompts/bug.md",
+    ".claude/agents/architect.md": "agents/architect.md",
+    ".claude/agents/backend-engineer.md": "agents/backend-engineer.md",
+    ".claude/agents/frontend-engineer.md": "agents/frontend-engineer.md",
+    ".claude/agents/reviewer.md": "agents/reviewer.md",
+    ".claude/agents/tester.md": "agents/tester.md",
+    ".claude/agents/devops.md": "agents/devops.md"
+  },
+  "renames": []
+}

@@ -6,7 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DevOS ("Development Operating System") is a reusable kit for AI-assisted software development with Claude Code: methodology docs, agent role definitions, prompts, templates, checklists, plus installable Claude Code subagents and slash commands. Almost all work here is authoring and maintaining Markdown content that other projects copy and adapt: there is **no build system and no test suite**.
 
-The one exception is `board/` — a small, dependency-free Node component (the Kanban board over the task files). It is a shipped part of the kit, not application code for this repo.
+Two exceptions, both dependency-free Node and both shipped parts of the kit rather than
+application code for this repo: `board/` (the Kanban board over the task files) and
+`cli/` (the installer that puts the kit into a project and updates it later). Both are
+covered by `node --test board/test/*.test.mjs`.
 
 ## Structure
 
@@ -17,7 +20,9 @@ The one exception is `board/` — a small, dependency-free Node component (the K
 - `.claude/commands/` — The prompts as slash commands: `/plan`, `/implement`, `/review-task`, `/dispatch`, `/board`, `/bug`. Same sync rule: `prompts/` is the specification.
 - `templates/` — Skeletons for project docs, roadmaps, tasks, and PRs.
 - `checklists/` — New-project and release checklists.
-- `board/` — The board (docs/17): `server.mjs` (HTTP API + UI + SSE), `cli.mjs` (the interface agents record through), `ui/` (plain HTML/CSS/JS), `lib/` (task-file parsing, JSONL history/queue store, dependency graph), `board.config.json`. Node 18+, zero dependencies, binds to `127.0.0.1`. It reads `tasks/*.md` as the source of truth and owns `.devos/events.jsonl` (history) and `.devos/queue.jsonl` (agent requests).
+- `cli/` — The installer (`devos install|update|status|doctor|restore`). `devos.manifest.json` classifies every kit file (`managed`, `template`, `code`, `generated-once`); `cli/known-hashes.json` is generated from git tags by `scripts/release.mjs hashes`. A consumer gets `devos.config.json` (its own facts) and `devos.lock.json` (two hashes per file: the kit's bytes at the locked version, and what was written to disk).
+- `install/` — Seeds a consumer copies once, such as the CLAUDE.md section.
+- `board/` — The board (docs/18): `server.mjs` (HTTP API + UI + SSE), `cli.mjs` (the interface agents record through), `ui/` (plain HTML/CSS/JS), `lib/` (task-file parsing, JSONL history/queue store, dependency graph), `board.config.json`. Node 18+, zero dependencies, binds to `127.0.0.1`. It reads `tasks/*.md` as the source of truth and owns `.devos/events.jsonl` (history) and `.devos/queue.jsonl` (agent requests).
 
 ## Conventions for Editing
 
@@ -26,6 +31,7 @@ The one exception is `board/` — a small, dependency-free Node component (the K
 - **Stay stack-agnostic**: no npm/pytest/etc. specifics — consuming projects add those in their own CLAUDE.md.
 - Files cross-reference each other heavily with relative links; when renaming or moving a file, grep for links to it and fix them.
 - Every prompt must state its required inputs and a stop condition; every role must state what it must never do.
+- **A change to the kit is a release.** Bump `package.json` + `devos.manifest.json`, add a CHANGELOG entry, and write `upgrade-notes/vX.Y.Z.md` when consumers must act. Renaming or removing a shipped file, or changing a task-template field the board parses, is a MAJOR bump. Run `node scripts/release.mjs check` and regenerate `cli/known-hashes.json` before tagging.
 - **Board code follows the templates, not the other way round**: `board/lib/taskfile.mjs` both parses `templates/task-template.md`'s shape (header `- **Field:** value` lines, `##` sections) and writes a skeleton mirroring it in `createTask`. Changing the template's field names or section headings means updating both in the same PR — and the board must degrade gracefully, never rewrite prose it does not understand.
 - The board is a view and an inbox: it must never spawn an agent, invent a task state, or become a second source of truth for task data (docs/18-Board.md).
 
