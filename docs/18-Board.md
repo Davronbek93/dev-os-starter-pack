@@ -71,15 +71,20 @@ work starts that a human did not ask for.
 
 Agents record through the CLI; the task file and the history are updated together.
 
-| When | Command |
-|---|---|
-| Taking a task | `node board/cli.mjs state <id> IN_PROGRESS --actor agent:<role> --branch <branch> --wave <wave>` |
-| PR opened, CI green | `node board/cli.mjs state <id> REVIEW --actor agent:<role> --note "PR <link>"` |
-| Review verdict | `node board/cli.mjs note <id> "<verdict + findings count>" --type review --actor agent:reviewer` |
-| Acceptance verified | `node board/cli.mjs state <id> TESTING --actor agent:tester` |
-| Merged | `node board/cli.mjs state <id> DONE --actor agent:orchestrator --note "squash-merged"` |
-| Parked ([16](16-Concurrency-Model.md)) | `node board/cli.mjs block <id> "<written blocker>" --actor agent:<role>` |
-| Anything else worth a story line | `node board/cli.mjs note <id> "<what happened>" --actor agent:<role>` |
+**One owner per transition.** An agent records what it did; the orchestrator records what
+it decided. Two roles writing the same `State` field is a race, and a story that cannot be
+trusted — so no role writes a transition another role owns.
+
+| When | Who | Command |
+|---|---|---|
+| Wave dispatched | orchestrator | `node board/cli.mjs dispatch <id> --wave <wave> --branch <branch>` |
+| Taking a task | the implementing agent | `node board/cli.mjs state <id> IN_PROGRESS --actor agent:<role> --branch <branch>` |
+| PR opened, CI green | the implementing agent | `node board/cli.mjs state <id> REVIEW --actor agent:<role> --note "PR <link>"` |
+| Review verdict | reviewer | `node board/cli.mjs note <id> "<verdict + findings count>" --type review --actor agent:reviewer` |
+| Acceptance verified | tester | `node board/cli.mjs state <id> TESTING --actor agent:tester` |
+| Merged | orchestrator | `node board/cli.mjs state <id> DONE --actor agent:orchestrator --note "squash-merged"` |
+| Parked ([16](16-Concurrency-Model.md)) | whoever hit the wall | `node board/cli.mjs block <id> "<written blocker>" --actor agent:<role>` |
+| Anything else worth a story line | anyone | `node board/cli.mjs note <id> "<what happened>" --actor agent:<role>` |
 
 `node board/cli.mjs help` lists the rest (`list`, `show`, `wave`, `queue`).
 

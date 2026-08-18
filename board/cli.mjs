@@ -2,7 +2,7 @@
 // Agent-facing board CLI. Agents record what they did here; humans use the UI.
 //   node board/cli.mjs <command> [args] [--flag value]
 import { config } from './lib/config.mjs';
-import { addTask, moveTask, note, request, setBlocker, snapshot, story } from './lib/sync.mjs';
+import { addTask, dispatchTask, moveTask, note, request, setBlocker, snapshot, story } from './lib/sync.mjs';
 import { patchQueue, readQueue } from './lib/store.mjs';
 
 const USAGE = `DevOS Board CLI
@@ -12,6 +12,7 @@ const USAGE = `DevOS Board CLI
   wave                                 The next parallel-safe wave (advisory)
   add "<title>" [--role R] [--goal G]  Create a BACKLOG task
   state <id> <STATE> [--note N] [--wave W] [--branch B] [--actor A]
+  dispatch <id> --wave W --branch B [--note N]   Assign a wave/branch without moving it
   block <id> "<reason>" | unblock <id>
   note <id> "<text>" [--type review|dispatch|note] [--ref REF] [--actor A]
   queue [--json]                       Pending agent requests
@@ -44,6 +45,15 @@ const fail = (message) => {
   process.exit(1);
 };
 const required = (value, name) => (value === undefined ? fail(`missing ${name}`) : value);
+
+const describe = (event) => {
+  if (event.type === 'state') return `${event.from || '—'} → ${event.to}`;
+  if (event.type === 'dispatch') {
+    return [event.wave !== undefined ? `wave ${event.wave}` : null, event.branch, event.note]
+      .filter(Boolean).join(' · ');
+  }
+  return event.note || '';
+};
 
 const stateIcon = { BACKLOG: '·', READY: '○', IN_PROGRESS: '◐', REVIEW: '◑', TESTING: '◕', DONE: '●', RELEASED: '★' };
 const line = (task) =>
@@ -82,7 +92,7 @@ try {
         'story:',
         ...data.events.map((event) =>
           `  ${event.ts.slice(0, 19).replace('T', ' ')}  ${event.type.padEnd(10)} ${
-            event.type === 'state' ? `${event.from || '—'} → ${event.to}` : event.note || ''
+            describe(event)
           }  [${event.actor}]`),
       ].filter((value) => value !== null).join('\n'));
       break;
@@ -110,6 +120,15 @@ try {
     case 'state':
       out(moveTask(required(args[0], 'task id'), required(args[1], 'state'), {
         actor: flags.actor || 'agent',
+        note: flags.note === true ? '' : flags.note || '',
+        wave: flags.wave === true ? undefined : flags.wave,
+        branch: flags.branch === true ? undefined : flags.branch,
+      }));
+      break;
+
+    case 'dispatch':
+      out(dispatchTask(required(args[0], 'task id'), {
+        actor: flags.actor || 'agent:orchestrator',
         note: flags.note === true ? '' : flags.note || '',
         wave: flags.wave === true ? undefined : flags.wave,
         branch: flags.branch === true ? undefined : flags.branch,

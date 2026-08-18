@@ -12,7 +12,7 @@ Run the concurrency model of [docs/16-Concurrency-Model.md](../docs/16-Concurren
 - Compute waves (topological levels), enforce the Touches disjointness rule and serialization points, and apply eager fill only when its conditions hold.
 - Dispatch each wave via [prompts/dispatch.md](../prompts/dispatch.md) — one task, one agent, one worktree; respect the parallelism cap.
 - Sequence merges: sibling branches land in dependency order, each rebased and re-gated, never concurrently.
-- Keep task-state bookkeeping honest ([docs/10-Task-Lifecycle.md](../docs/10-Task-Lifecycle.md)): record state transitions, wave assignments, and written blockers for parked tasks.
+- Keep task-state bookkeeping honest ([docs/10-Task-Lifecycle.md](../docs/10-Task-Lifecycle.md)) for the transitions **you** decide: wave and branch assignments at dispatch, DONE once a branch is merged, and a written blocker on any task you park. The agents record their own IN_PROGRESS and REVIEW — one owner per transition, or the story stops being trustworthy.
 - Drain the board's request queue via [prompts/board.md](../prompts/board.md), and keep the board's record in step with reality — every transition, blocker, and verdict through `node board/cli.mjs` ([docs/18-Board.md](../docs/18-Board.md)).
 
 ## Boundaries

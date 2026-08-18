@@ -93,6 +93,13 @@ export function story(taskId) {
   };
 }
 
+/** Records a wave/branch assignment without moving the task (docs/16, docs/18). */
+export function dispatchTask(id, { actor = 'agent:orchestrator', note = '', wave, branch } = {}) {
+  const task = findTask(id);
+  if (!task) throw new Error(`unknown task: ${id}`);
+  return moveTask(id, task.state, { actor, note, wave, branch });
+}
+
 export function moveTask(id, state, { actor = 'human', note = '', wave, branch } = {}) {
   const before = findTask(id);
   if (!before) throw new Error(`unknown task: ${id}`);
@@ -100,10 +107,18 @@ export function moveTask(id, state, { actor = 'human', note = '', wave, branch }
   if (!config.states.includes(target)) throw new Error(`unknown state: ${state}`);
 
   const after = updateTask(id, { state: target, wave, branch });
-  if (before.state !== target || wave !== undefined || branch !== undefined) {
+  const moved = before.state !== after.state;
+  if (moved || wave !== undefined || branch !== undefined) {
     appendEvent({
-      task: id, type: 'state', from: before.state, to: after.state, actor, note,
-      wave: after.wave || undefined, branch: after.branch || undefined,
+      task: id,
+      // Assigning a wave without moving the task is a dispatch; recording it as a
+      // state change would put `READY → READY` in the story.
+      type: moved ? 'state' : 'dispatch',
+      ...(moved ? { from: before.state, to: after.state } : {}),
+      actor,
+      note,
+      wave: after.wave || undefined,
+      branch: after.branch || undefined,
     });
   }
   return after;

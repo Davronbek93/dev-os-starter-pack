@@ -216,9 +216,12 @@ function storyLine(event) {
   const kind = event.type === 'state'
     ? (event.to === 'DONE' || event.to === 'RELEASED' ? 'done' : 'state')
     : (event.type === 'blocked' ? 'blocked' : '');
+  const detail = event.type === 'dispatch'
+    ? [event.wave !== undefined ? `wave ${event.wave}` : null, event.branch, event.note].filter(Boolean).join(' · ')
+    : event.note;
   const what = event.type === 'state'
     ? `${event.from || '—'} → ${event.to}`
-    : `${event.type}${event.note ? `: ${event.note}` : ''}`;
+    : `${event.type}${detail ? `: ${detail}` : ''}`;
   return el('li', { className: kind }, [
     el('div', { className: 'when', textContent: when(event.ts) }),
     el('div', { className: 'what', textContent: what }),
