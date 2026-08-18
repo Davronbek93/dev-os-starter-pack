@@ -33,5 +33,10 @@ Dependencies must be DONE **and merged** before this task is dispatchable.
 ## Out of scope
 What this task deliberately does **not** include (prevents scope creep during implementation).
 
+## Blocker
+Why this task cannot move right now, in prose — set when a task is parked ([10-Task-Lifecycle.md](../docs/10-Task-Lifecycle.md)), cleared when it is unblocked. `_none_` otherwise.
+
+_none_
+
 ## Notes
 Open questions, hints, or constraints for the implementer. Empty is fine.

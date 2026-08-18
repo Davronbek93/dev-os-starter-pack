@@ -1,0 +1,9 @@
+{
+  "tasksDir": "tasks",
+  "roadmap": "ROADMAP.md",
+  "taskTemplate": "templates/task-template.md",
+  "dataDir": ".devos",
+  "port": 4317,
+  "parallelismCap": 3,
+  "idPrefix": "T"
+}

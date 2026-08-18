@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DevOS Board</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='14'>🗂</text></svg>">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">▚</span>
+    <div>
+      <h1>DevOS Board</h1>
+      <p class="root" id="root">—</p>
+    </div>
+  </div>
+  <div class="tools">
+    <input id="search" type="search" placeholder="Filter tasks…" autocomplete="off">
+    <select id="role-filter"><option value="">All roles</option></select>
+    <button id="queue-btn" class="ghost" title="Requests waiting for an agent session">
+      Queue <span class="badge" id="queue-count">0</span>
+    </button>
+    <button id="new-btn" class="primary">+ New task</button>
+    <span class="live" id="live" title="Live connection">●</span>
+  </div>
+</header>
+
+<section class="flow" id="flow"></section>
+
+<div class="banner" id="wave-banner" hidden></div>
+
+<main class="board" id="board"></main>
+
+<aside class="drawer" id="drawer" hidden>
+  <div class="drawer-head">
+    <div>
+      <span class="chip id" id="d-id"></span>
+      <h2 id="d-title"></h2>
+    </div>
+    <button class="icon" id="d-close" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-body" id="d-body"></div>
+</aside>
+
+<div class="modal" id="modal" hidden>
+  <form class="dialog" id="new-form">
+    <h2>New task</h2>
+    <p class="hint">You describe it; the agents refine, implement, review, and test it.</p>
+    <label>Title<input name="title" required placeholder="Add rate limiting to the public API"></label>
+    <label>Goal<textarea name="goal" rows="3" placeholder="One sentence. If you need &quot;and&quot;, it is two tasks."></textarea></label>
+    <div class="row">
+      <label>Role
+        <select name="role">
+          <option value="architect">architect</option>
+          <option value="backend">backend</option>
+          <option value="frontend">frontend</option>
+          <option value="devops">devops</option>
+          <option value="tester">tester</option>
+        </select>
+      </label>
+      <label>Milestone<input name="milestone" placeholder="Phase 1"></label>
+    </div>
+    <label class="check">
+      <input type="checkbox" name="refine" checked>
+      Ask an agent to refine it into a DevOS task (queues <code>/plan</code>)
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" id="cancel-new">Cancel</button>
+      <button type="submit" class="primary">Create in BACKLOG</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal" id="queue-modal" hidden>
+  <div class="dialog">
+    <h2>Agent queue</h2>
+    <p class="hint">Nothing runs by itself. In a Claude Code session at the project root, run
+      <code>/board</code> — the orchestrator drains this queue and reports back here.</p>
+    <div id="queue-list"></div>
+    <div class="actions"><button class="ghost" id="queue-close">Close</button></div>
+  </div>
+</div>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>
