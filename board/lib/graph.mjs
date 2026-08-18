@@ -54,15 +54,23 @@ export function decorate(tasks) {
       const dep = byId.get(id);
       return !dep || !SETTLED.has(dep.state);
     });
+    // A dependency naming no task on disk is a typo or a deleted file — it keeps the
+    // task blocked rather than letting it dispatch on an unverifiable claim.
+    const unknownDeps = task.dependencies.filter((id) => !byId.has(id));
     const conflicts = inFlight
       .filter((other) => other.id !== task.id && touchesOverlap(task, other))
       .map((other) => other.id);
+    // An empty Touches set overlaps nothing, so it *looks* co-schedulable with
+    // everything. It is not a disjointness proof (docs/16), so it is not dispatchable.
+    const needsTouches = task.touches.length === 0;
 
     return {
       ...task,
       computedWave: waves.get(task.id) ?? 0,
       blockedBy,
-      dispatchable: task.state === 'READY' && blockedBy.length === 0 && !task.blocker,
+      unknownDeps,
+      needsTouches,
+      dispatchable: task.state === 'READY' && blockedBy.length === 0 && !task.blocker && !needsTouches,
       conflicts,
       progress: task.criteria.length
         ? Math.round((task.criteria.filter((c) => c.done).length / task.criteria.length) * 100)

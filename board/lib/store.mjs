@@ -1,6 +1,6 @@
 // Append-only history and agent request queue, both JSONL under config.dataDir.
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { config } from './config.mjs';
 
 const readLines = (path) => {
@@ -18,8 +18,23 @@ const readLines = (path) => {
     .filter(Boolean);
 };
 
+/**
+ * The history is reviewable and belongs in git; the request inbox is per-machine
+ * intent and does not (docs/18-Board.md). The board states that policy itself, so a
+ * fresh install gets it without an extra step.
+ */
+function ensureDataDir(path) {
+  const dir = dirname(path);
+  mkdirSync(dir, { recursive: true });
+  const ignore = join(dir, '.gitignore');
+  if (!existsSync(ignore)) {
+    writeFileSync(ignore,
+      '# The request inbox is local, ephemeral state; the history is not (docs/18-Board.md).\nqueue.jsonl\n');
+  }
+}
+
 const append = (path, record) => {
-  mkdirSync(dirname(path), { recursive: true });
+  ensureDataDir(path);
   appendFileSync(path, `${JSON.stringify(record)}\n`);
   return record;
 };
@@ -27,8 +42,10 @@ const append = (path, record) => {
 export const now = () => new Date().toISOString();
 
 /**
- * Event types: created | state | dispatch | blocked | unblocked | review | note
+ * Event types: baseline | created | state | dispatch | blocked | unblocked | review | note
  * Shape: { ts, task, type, from, to, actor, note, wave, branch, ref }
+ * A `baseline` event carries `states: { <id>: <STATE> }` for tasks that already
+ * existed when the board was installed — see syncHistory().
  */
 export const readEvents = () => readLines(config.eventsFile);
 
@@ -41,7 +58,9 @@ export const eventsFor = (taskId) => readEvents().filter((event) => event.task =
 export function lastRecordedState(events, taskId) {
   let state;
   for (const event of events) {
-    if (event.task === taskId && (event.type === 'state' || event.type === 'created') && event.to) {
+    if (event.type === 'baseline' && event.states && taskId in event.states) {
+      state = event.states[taskId];
+    } else if (event.task === taskId && (event.type === 'state' || event.type === 'created') && event.to) {
       state = event.to;
     }
   }

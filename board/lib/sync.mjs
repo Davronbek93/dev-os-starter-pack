@@ -2,7 +2,7 @@
 // Task files stay the source of truth; history is derived from them and never
 // contradicts them.
 import { config } from './config.mjs';
-import { createTask, findTask, listTasks, updateTask } from './taskfile.mjs';
+import { createTask, findTask, idTracks, listTasks, updateTask } from './taskfile.mjs';
 import {
   appendEvent, enqueue, lastRecordedBlocker, lastRecordedState, pendingQueue,
   readEvents, readQueue,
@@ -15,9 +15,22 @@ import { decorate, nextWave } from './graph.mjs';
  */
 export function syncHistory() {
   let events = readEvents();
-  let appended = false;
+  const tasks = listTasks();
 
-  for (const task of listTasks()) {
+  // Installing the board onto an existing project must not invent a creation date for
+  // every task that already exists. One baseline line records where they stood.
+  if (!events.length && tasks.length) {
+    appendEvent({
+      type: 'baseline',
+      actor: 'board',
+      note: `imported ${tasks.length} existing task files`,
+      states: Object.fromEntries(tasks.map((task) => [task.id, task.state])),
+    });
+    events = readEvents();
+  }
+
+  for (const task of tasks) {
+    let appended = false;
     const recorded = lastRecordedState(events, task.id);
     if (recorded === undefined) {
       appendEvent({ task: task.id, type: 'created', to: task.state, actor: 'file', note: task.title });
@@ -43,6 +56,13 @@ export function syncHistory() {
   return events;
 }
 
+/** The card fields the board UI actually renders — the rest stays behind /api/tasks/:id. */
+const cardFields = ({ goal, context, notes, outOfScope, criteria, ...rest }) => ({
+  ...rest,
+  criteriaDone: criteria.filter((criterion) => criterion.done).length,
+  criteriaTotal: criteria.length,
+});
+
 export function snapshot() {
   const events = syncHistory();
   const tasks = decorate(listTasks());
@@ -54,11 +74,12 @@ export function snapshot() {
     parallelismCap: config.parallelismCap,
     tasksDir: config.tasksDir,
     root: config.root,
-    tasks,
+    tasks: tasks.map(cardFields),
+    idTracks: Object.fromEntries(idTracks(tasks)),
     queue,
     pending: queue.filter((item) => item.status === 'pending'),
     suggestedWave: nextWave(tasks).map((task) => task.id),
-    events: events.slice(-500),
+    eventCount: events.length,
   };
 }
 
