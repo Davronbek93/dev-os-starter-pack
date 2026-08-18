@@ -107,3 +107,5 @@ markdown files, which cannot express race-free claims: two dispatch decisions
 can read the same READY task before either records ownership. Waves keep every
 dispatch decision explicit, auditable, and made in one place. Eager fill (above)
 recovers most of the lost throughput without giving up single-point dispatch.
+
+The board ([17-Board.md](17-Board.md)) is a view over this model, not an exception to it: it displays waves, readiness, and Touches overlap, and it queues requests — but every dispatch decision is still made by the orchestrator, in one place, when a human starts a session.

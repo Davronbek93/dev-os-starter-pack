@@ -19,6 +19,8 @@ You are implementing **one task only** ([docs/10-Task-Lifecycle.md](../docs/10-T
 6. **Sync docs.** Update any document your change invalidates, in the same branch ([docs/06-Documentation-Standards.md](../docs/06-Documentation-Standards.md)).
 7. **Verify** each acceptance criterion explicitly and report the evidence per criterion.
 
+8. **Record on the board** ([docs/17-Board.md](../docs/17-Board.md)) as the task moves, so its card and story match reality: `node board/cli.mjs state <id> IN_PROGRESS --actor agent:<role> --branch <branch>` when you start, `node board/cli.mjs state <id> REVIEW --actor agent:<role> --note "PR <link>"` when the PR is ready, `node board/cli.mjs block <id> "<reason>" --actor agent:<role>` whenever you stop and report.
+
 **Stop conditions:**
 - Stop when the [Definition of Done](../docs/04-Definition-of-Done.md) items you can satisfy locally are done and the PR is ready. Do not pick up the next task.
 - Stop and ask if you discover the task is bigger than a session, a contract needs changing, a dependency task isn't actually done, or (in a wave) a needed file falls outside the Touches set.

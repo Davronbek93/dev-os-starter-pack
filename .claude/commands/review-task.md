@@ -12,3 +12,5 @@ Work the checklist in order: correctness vs acceptance criteria → architecture
 For every finding report file:line, severity (blocking / nit:), the problem, and a suggested direction. Read surrounding code, not just the diff.
 
 End with a verdict — APPROVE or REQUEST CHANGES — and a one-paragraph summary. Do not modify any code, even for trivial issues.
+
+Record the verdict on the board: `node board/cli.mjs note <task-id> "<APPROVE|REQUEST CHANGES> — <n> blocking, <n> nits" --type review --actor agent:reviewer` (docs/17-Board.md).
