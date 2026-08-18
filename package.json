@@ -1,0 +1,21 @@
+{
+  "name": "dev-os-starter-pack",
+  "version": "0.3.0",
+  "description": "DevOS — a development operating system for AI-assisted software work",
+  "type": "module",
+  "bin": { "devos": "./cli/devos.mjs" },
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test board/test/*.test.mjs"
+  },
+  "files": [
+    "cli/", "docs/", "agents/", "prompts/", "templates/", "checklists/",
+    "board/", ".claude/", "install/", "upgrade-notes/",
+    "devos.manifest.json", "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davronbek93/dev-os-starter-pack.git"
+  },
+  "license": "UNLICENSED"
+}

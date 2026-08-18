@@ -14,6 +14,10 @@ Work is divided among single-responsibility roles. Each role does only its own j
 
 The Orchestrator is spec-only: it is realized by the top-level Claude Code session, not installed as a subagent (see [agents/orchestrator.md](../agents/orchestrator.md)).
 
+## Model tiers
+
+Roles run on different LLM tiers — REASONING for the gate/judgment roles, BUILD for the execution roles — per [17-Model-Tiers.md](17-Model-Tiers.md), which owns the mapping and override rules; the concrete model binding lives in the project's ADR.
+
 ## Handoffs
 
 - Architect → Engineers: reviewed architecture/contract documents and a task list.

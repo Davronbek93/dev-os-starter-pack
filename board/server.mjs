@@ -4,7 +4,7 @@
 import { createServer } from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
-import { config, boardDir } from './lib/config.mjs';
+import { config, boardDir, DEFAULTS } from './lib/config.mjs';
 import { addTask, moveTask, request, setBlocker, snapshot, story, note } from './lib/sync.mjs';
 import { patchQueue } from './lib/store.mjs';
 
@@ -106,6 +106,18 @@ const poll = setInterval(() => {
   }
 }, 1500);
 poll.unref?.();
+
+// A board rooted in the wrong place looks identical to a project with no tasks yet.
+// Say so instead, whenever the project actually configured a tasks directory.
+if (!existsSync(config.tasksPath)) {
+  const message = `board: no tasks directory at ${config.tasksPath}`;
+  if (config.tasksDir !== DEFAULTS.tasksDir) {
+    console.error(`${message}\n  root resolved to ${config.root}`);
+    console.error(`  fix tasksDir in ${config.dataDir}/board.config.json, or set DEVOS_ROOT`);
+    process.exit(1);
+  }
+  console.warn(`${message} — starting empty; "+ New task" will create it`);
+}
 
 server.listen(config.port, '127.0.0.1', () => {
   console.log(`DevOS Board  →  http://127.0.0.1:${config.port}`);

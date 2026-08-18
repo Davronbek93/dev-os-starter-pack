@@ -51,6 +51,10 @@
     <label>Title<input name="title" required placeholder="Add rate limiting to the public API"></label>
     <label>Goal<textarea name="goal" rows="3" placeholder="One sentence. If you need &quot;and&quot;, it is two tasks."></textarea></label>
     <div class="row">
+      <label>Track
+        <input name="track" list="track-options" autocomplete="off" placeholder="SV">
+        <datalist id="track-options"></datalist>
+      </label>
       <label>Role
         <select name="role">
           <option value="architect">architect</option>
@@ -62,6 +66,7 @@
       </label>
       <label>Milestone<input name="milestone" placeholder="Phase 1"></label>
     </div>
+    <p class="hint" id="id-preview">—</p>
     <label class="check">
       <input type="checkbox" name="refine" checked>
       Ask an agent to refine it into a DevOS task (queues <code>/plan</code>)

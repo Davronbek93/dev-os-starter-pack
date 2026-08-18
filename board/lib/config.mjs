@@ -1,7 +1,8 @@
-// Board configuration: defaults, board.config.json overrides, env overrides.
+// Board configuration: defaults, config files, env overrides.
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findRoot } from './gitroot.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url)); // board/lib
 export const boardDir = resolve(here, '..');          // board
@@ -10,7 +11,7 @@ export const STATES = [
   'BACKLOG', 'READY', 'IN_PROGRESS', 'REVIEW', 'TESTING', 'DONE', 'RELEASED',
 ];
 
-const DEFAULTS = {
+export const DEFAULTS = {
   tasksDir: 'tasks',
   roadmap: 'ROADMAP.md',
   taskTemplate: 'templates/task-template.md',
@@ -18,31 +19,30 @@ const DEFAULTS = {
   port: 4317,
   parallelismCap: 3,
   idPrefix: 'T',
+  idPad: 0,
 };
 
-function findRoot(start) {
-  let dir = start;
-  for (;;) {
-    if (existsSync(join(dir, '.git'))) return dir;
-    const up = dirname(dir);
-    if (up === dir) return start;
-    dir = up;
-  }
-}
+export { findRoot };
 
-function fileConfig() {
-  const path = join(boardDir, 'board.config.json');
+function fileConfig(path) {
   if (!existsSync(path)) return {};
   try {
     return JSON.parse(readFileSync(path, 'utf8'));
   } catch (err) {
-    console.warn(`board: ignoring invalid board.config.json (${err.message})`);
+    console.warn(`board: ignoring invalid ${path} (${err.message})`);
     return {};
   }
 }
 
 const root = resolve(process.env.DEVOS_ROOT || findRoot(boardDir));
-const merged = { ...DEFAULTS, ...fileConfig() };
+
+// The project's own settings live outside the kit, so a kit update never clobbers them.
+// `.devos` is the literal default here — dataDir cannot configure its own lookup.
+const merged = {
+  ...DEFAULTS,
+  ...fileConfig(join(boardDir, 'board.config.json')),
+  ...fileConfig(join(root, '.devos', 'board.config.json')),
+};
 if (process.env.DEVOS_TASKS_DIR) merged.tasksDir = process.env.DEVOS_TASKS_DIR;
 if (process.env.DEVOS_DATA_DIR) merged.dataDir = process.env.DEVOS_DATA_DIR;
 if (process.env.PORT) merged.port = Number(process.env.PORT);

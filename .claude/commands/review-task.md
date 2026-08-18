@@ -13,4 +13,4 @@ For every finding report file:line, severity (blocking / nit:), the problem, and
 
 End with a verdict — APPROVE or REQUEST CHANGES — and a one-paragraph summary. Do not modify any code, even for trivial issues.
 
-Record the verdict on the board: `node board/cli.mjs note <task-id> "<APPROVE|REQUEST CHANGES> — <n> blocking, <n> nits" --type review --actor agent:reviewer` (docs/17-Board.md).
+Record the verdict on the board: `node board/cli.mjs note <task-id> "<APPROVE|REQUEST CHANGES> — <n> blocking, <n> nits" --type review --actor agent:reviewer` (docs/18-Board.md).

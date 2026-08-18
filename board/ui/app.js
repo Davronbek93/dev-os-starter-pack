@@ -8,6 +8,10 @@ const el = (tag, props = {}, children = []) => {
   return node;
 };
 
+/** Ids on a card are a signal, not a manifest — the drawer has the full list. */
+const summarize = (ids, max = 3) =>
+  (ids.length <= max ? ids.join(', ') : `${ids.slice(0, max).join(', ')} +${ids.length - max}`);
+
 const OWNER = {
   BACKLOG: 'you', READY: 'orchestrator', IN_PROGRESS: 'engineer',
   REVIEW: 'reviewer', TESTING: 'tester', DONE: 'orchestrator', RELEASED: 'devops',
@@ -23,6 +27,9 @@ const AGENT_ACTIONS = [
   ['review-task', 'Review', 'Independent reviewer verdict on the diff'],
   ['bug', 'Investigate', 'Root-cause a defect — diagnosis only, no fix'],
 ];
+
+// Everything past READY is already dispatched — flagging it there is noise, not news.
+const NEEDS_TOUCHES_IN = new Set(['BACKLOG', 'READY']);
 
 const state = { data: null, selected: null, filter: '', role: '' };
 
@@ -103,9 +110,29 @@ function card(task) {
       el('span', { className: 'chip id', textContent: task.id }),
       task.role ? el('span', { className: 'chip role', textContent: task.role }) : null,
       el('span', { className: 'chip', textContent: `wave ${task.wave || task.computedWave}` }),
-      task.blockedBy.length ? el('span', { className: 'chip warn', textContent: `needs ${task.blockedBy.join(', ')}` }) : null,
+      task.blockedBy.length
+        ? el('span', {
+          className: 'chip warn',
+          textContent: `needs ${summarize(task.blockedBy)}`,
+          title: task.blockedBy.join(', '),
+        })
+        : null,
+      task.unknownDeps.length
+        ? el('span', {
+          className: 'chip warn',
+          textContent: `${task.unknownDeps.length} unknown dep${task.unknownDeps.length > 1 ? 's' : ''}`,
+          title: `No task file for: ${task.unknownDeps.join(', ')}`,
+        })
+        : null,
+      task.needsTouches && NEEDS_TOUCHES_IN.has(task.state)
+        ? el('span', {
+          className: task.state === 'READY' ? 'chip warn' : 'chip',
+          textContent: 'needs Touches',
+          title: 'Without a Touches set this task cannot be proven parallel-safe, so it is not dispatchable.',
+        })
+        : null,
       task.blocker ? el('span', { className: 'chip warn', textContent: '⚑ blocked' }) : null,
-      task.conflicts.length ? el('span', { className: 'chip warn', textContent: `overlaps ${task.conflicts.join(', ')}` }) : null,
+      task.conflicts.length ? el('span', { className: 'chip warn', textContent: `overlaps ${summarize(task.conflicts)}` }) : null,
       task.branch ? el('span', { className: 'chip', textContent: task.branch }) : null,
     ]),
   ]);
@@ -151,6 +178,12 @@ function render() {
   $('#root').textContent = `${data.root}  ·  ${data.tasksDir}/`;
   $('#queue-count').textContent = data.pending.length;
   $('#queue-count').classList.toggle('zero', data.pending.length === 0);
+
+  const tracks = Object.keys(data.idTracks || {}).sort();
+  $('#track-options').replaceChildren(...tracks.map((track) => el('option', { value: track })));
+  const trackInput = $('#new-form').elements.track;
+  if (!trackInput.value) trackInput.value = tracks[0] || 'T';
+  previewId();
 
   const roles = [...new Set(data.tasks.map((task) => task.role).filter(Boolean))].sort();
   const select = $('#role-filter');
@@ -204,7 +237,8 @@ async function openTask(id, quiet = false) {
   const parts = [
     el('div', { className: 'kv' }, [
       el('span', { className: 'chip', textContent: task.state }),
-      task.role ? el('span', { className: 'chip role', textContent: task.role }) : null,
+      task.stateNote ? el('span', { className: 'chip', textContent: task.stateNote }) : null,
+      task.roleLabel ? el('span', { className: 'chip role', textContent: task.roleLabel }) : null,
       el('span', { className: 'chip', textContent: `wave ${task.wave || task.computedWave}` }),
       task.milestone ? el('span', { className: 'chip', textContent: task.milestone }) : null,
       task.branch ? el('span', { className: 'chip', textContent: task.branch }) : null,
@@ -223,11 +257,20 @@ async function openTask(id, quiet = false) {
     el('h3', { textContent: 'Touches' }),
     task.touches.length
       ? el('ul', {}, task.touches.map((path) => el('li', {}, el('code', { textContent: path }))))
-      : el('p', { className: 'hint', textContent: '— (needed before this task can share a wave)' }),
+      : el('p', {
+        className: task.state === 'READY' ? 'chip warn' : 'hint',
+        textContent: 'Required before dispatch — add ## Touches (queue /plan).',
+      }),
     el('h3', { textContent: 'Dependencies' }),
     task.dependencies.length
-      ? el('ul', {}, task.dependencies.map((dep) => el('li', { textContent: dep + (task.blockedBy.includes(dep) ? ' (not done)' : ' ✔') })))
+      ? el('ul', {}, task.dependencies.map((dep) => el('li', {
+        textContent: `${dep}${task.unknownDeps.includes(dep) ? ' — no task file' : task.blockedBy.includes(dep) ? ' (not done)' : ' ✔'}`,
+      })))
       : el('p', { className: 'hint', textContent: '—' }),
+    task.externalDeps.length ? el('h3', { textContent: 'External dependencies' }) : null,
+    task.externalDeps.length
+      ? el('ul', {}, task.externalDeps.map((dep) => el('li', { textContent: dep })))
+      : null,
     el('h3', { textContent: 'Ask an agent' }),
     el('div', { className: 'agent-actions' }, AGENT_ACTIONS.map(([type, label, title]) =>
       el('button', { className: 'ghost', textContent: label, title, onclick: () => enqueue(type, task.id) }))),
@@ -281,6 +324,16 @@ $('#role-filter').addEventListener('change', (event) => {
   state.role = event.target.value;
   render();
 });
+function previewId() {
+  const data = state.data;
+  if (!data) return;
+  const track = String($('#new-form').elements.track.value || '').trim().toUpperCase();
+  const next = /^[A-Z][A-Z0-9]*$/.test(track) ? `${track}-${(data.idTracks[track] || 0) + 1}` : '—';
+  $('#id-preview').textContent = `will create ${next}`;
+}
+
+$('#new-form').elements.track.addEventListener('input', previewId);
+
 $('#new-btn').addEventListener('click', () => {
   $('#modal').hidden = false;
   $('#new-form').reset();
@@ -311,6 +364,7 @@ $('#new-form').addEventListener('submit', async (event) => {
         title: form.get('title'),
         goal: form.get('goal'),
         role: form.get('role'),
+        track: form.get('track'),
         milestone: form.get('milestone'),
       },
     });

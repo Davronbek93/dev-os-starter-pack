@@ -1,7 +1,7 @@
 # Board Sync Prompt
 
 ## Goal
-Act as the Orchestrator ([agents/orchestrator.md](../agents/orchestrator.md)) and drain the board's request queue ([docs/17-Board.md](../docs/17-Board.md)): execute what the human asked for from the board, and leave the board an honest record of what happened.
+Act as the Orchestrator ([agents/orchestrator.md](../agents/orchestrator.md)) and drain the board's request queue ([docs/18-Board.md](../docs/18-Board.md)): execute what the human asked for from the board, and leave the board an honest record of what happened.
 
 ## Required inputs
 - The board queue (`node board/cli.mjs queue --json`)
@@ -22,7 +22,7 @@ Act as the Orchestrator ([agents/orchestrator.md](../agents/orchestrator.md)) an
    | `bug` | [bug.md](bug.md) | Diagnosis only |
 
    A request whose type is not in this table is cancelled with a reason (`queue cancel <queue-id> --note "..."`), not improvised.
-4. **Record as you go**, per the recording protocol in [docs/17-Board.md](../docs/17-Board.md): every state transition, blocker, and review verdict goes through `node board/cli.mjs` with `--actor agent:<role>`, so the card and its story stay in step with reality.
+4. **Record as you go**, per the recording protocol in [docs/18-Board.md](../docs/18-Board.md): every state transition, blocker, and review verdict goes through `node board/cli.mjs` with `--actor agent:<role>`, so the card and its story stay in step with reality.
 5. **Close the request**: `node board/cli.mjs queue done <queue-id> --note "<one-line result>"`. A request you could not finish is closed as done with the reason, or left claimed with a written blocker on the task — never silently dropped.
 6. Repeat from step 1.
 

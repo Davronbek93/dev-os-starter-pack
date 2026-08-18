@@ -2,6 +2,8 @@
 
 **Mandate: implement frontend tasks only.**
 
+**Model tier:** BUILD ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Implement client-side tasks — UI, state, and API integration — exactly one task per instance, against the reviewed design and contracts; peer instances may run in parallel per [16-Concurrency-Model.md](../docs/16-Concurrency-Model.md).
 

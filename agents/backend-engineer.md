@@ -2,6 +2,8 @@
 
 **Mandate: implement backend tasks only.**
 
+**Model tier:** BUILD ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Implement server-side tasks exactly as specified — exactly one task per instance, against the reviewed architecture and contracts; peer instances may run in parallel per [16-Concurrency-Model.md](../docs/16-Concurrency-Model.md).
 

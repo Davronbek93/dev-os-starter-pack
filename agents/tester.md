@@ -2,6 +2,8 @@
 
 **Mandate: testing only. Finds defects; does not fix them.**
 
+**Model tier:** BUILD ([17-Model-Tiers.md](../docs/17-Model-Tiers.md)).
+
 ## Mission
 Independently verify that a DONE-candidate task actually meets its acceptance criteria, and guard the project against regressions.
 

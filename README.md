@@ -12,7 +12,7 @@ and a written record of everything that happened.
 
 | | |
 |---|---|
-| **A methodology** | 17 numbered docs ([docs/](docs/)) covering the pipeline from requirements to release, and the rules that make each step checkable |
+| **A methodology** | 18 numbered docs ([docs/](docs/)) covering the pipeline from requirements to release, and the rules that make each step checkable |
 | **Roles with hard boundaries** | Seven single-responsibility roles ([agents/](agents/)), six of them installable as Claude Code subagents — no agent designs, implements, reviews, and tests its own work |
 | **Prompts as slash commands** | `/plan`, `/dispatch`, `/implement`, `/review-task`, `/board`, `/bug` — each with required inputs, steps, and an explicit stop condition |
 | **A board** | A local Kanban view over your task files ([board/](board/)): you add tasks, agents do the rest, and each card carries the story of what happened |
@@ -24,14 +24,20 @@ deploy) belong in the consuming project's own `CLAUDE.md`.
 
 ### In a new project
 
+DevOS installs as a versioned module — nothing is published to npm, the version is a git
+tag:
+
 ```bash
-# 1. copy DevOS in (at minimum: docs/, .claude/, board/, CLAUDE.md)
-cp -R dev-os-starter-pack/{docs,agents,prompts,templates,checklists,board,.claude,CLAUDE.md} my-project/
+cd my-project
+npx github:Davronbek93/dev-os-starter-pack#v0.3.0 install \
+  --tasks-dir tasks --branch main
+```
 
-# 2. in my-project: adapt CLAUDE.md to the stack, then work the checklist
-#    checklists/new-project.md — requirements, architecture, roadmap, repo, CI
+That writes the kit into `devos/`, the board into `board/`, renders `.claude/agents/` and
+`.claude/commands/` with your project's paths, and records `devos.config.json` +
+`devos.lock.json`. Then work `checklists/new-project.md` top to bottom, and:
 
-# 3. open the board and leave it next to your Claude Code session
+```bash
 node board/server.mjs        # → http://127.0.0.1:4317
 ```
 
@@ -55,6 +61,29 @@ node board/server.mjs
 Node 18+, zero dependencies, bound to `127.0.0.1`. It reads `tasks/*.md` — an
 empty or missing task directory is fine, the board starts empty and offers
 **+ New task**.
+
+### Updating later
+
+```bash
+npx github:Davronbek93/dev-os-starter-pack#v0.4.0 update --dry-run
+```
+
+**A file you changed is never overwritten.** Untouched files update in place; files you
+edited stay exactly as they are — the new version lands in `.devos-update/` with the
+`git merge-file` command to reconcile it, or is merged automatically when a baseline
+exists. `.claude/**` is rendered once and then yours: update only tells you when the spec
+behind it changed. `devos status` says whether anything is pending; `devos doctor` adds a
+link check that catches renamed docs.
+
+A project that copied the kit by hand adopts it without losing anything:
+
+```bash
+npx github:… install --adopt --from 0.2.0 --kit-repo ~/dev-os-starter-pack --dry-run
+```
+
+Adopt is purely additive — it writes only `devos.config.json`, `devos.lock.json` and the
+baseline, working out which files you changed so the first update can tell your edits
+from a real conflict.
 
 ## The loop
 
@@ -108,6 +137,12 @@ Six are installed as Claude Code subagents in [.claude/agents/](.claude/agents/)
 The Orchestrator is spec-only — it is the top-level session itself, which cannot
 delegate dispatch to a subagent of its own.
 
+Each role also carries a **model tier** ([docs/17-Model-Tiers.md](docs/17-Model-Tiers.md)):
+the gate roles that decide whether other work is correct — architect, orchestrator,
+reviewer — run at REASONING; the roles bounded by documents someone else authored run at
+BUILD. The orchestrator may upgrade one unusually hard task at dispatch, and never
+downgrades.
+
 ## The board
 
 ```
@@ -129,7 +164,7 @@ dispatch, review verdict, and blocker, with who did it and when.
 
 All three are text and belong in git. Setup, configuration, CLI and HTTP
 reference: [board/README.md](board/README.md). The model and its boundaries:
-[docs/17-Board.md](docs/17-Board.md).
+[docs/18-Board.md](docs/18-Board.md).
 
 ## How work is structured
 
@@ -151,7 +186,7 @@ reference: [board/README.md](board/README.md). The model and its boundaries:
 
 | Path | Contents |
 |---|---|
-| [docs/](docs/) | The methodology, `NN-Title.md`, 01–17 |
+| [docs/](docs/) | The methodology, `NN-Title.md`, 01–18 |
 | [agents/](agents/) | Role definitions — the specification |
 | [.claude/agents/](.claude/agents/) | The same roles as installable subagents — the executable form |
 | [prompts/](prompts/) | Reusable prompts — the specification |
@@ -159,6 +194,8 @@ reference: [board/README.md](board/README.md). The model and its boundaries:
 | [templates/](templates/) | Project docs, roadmap, task, PR skeletons |
 | [checklists/](checklists/) | New-project and release checklists |
 | [board/](board/) | The board: server, agent CLI, UI, task-file parsing |
+| [cli/](cli/) | The installer: `devos install` / `update` / `status` / `doctor` |
+| [install/](install/) | Seeds a project copies once, e.g. the CLAUDE.md section |
 
 ## Documentation index
 
@@ -180,13 +217,14 @@ reference: [board/README.md](board/README.md). The model and its boundaries:
 | 14 | [Performance](docs/14-Performance.md) | Budgets and the checklist that defends them |
 | 15 | [Refactoring](docs/15-Refactoring.md) | When refactoring is allowed and how it stays behavior-free |
 | 16 | [Concurrency Model](docs/16-Concurrency-Model.md) | Waves, Touches disjointness, serialization points, CI contention |
-| 17 | [Board](docs/17-Board.md) | The board's data model, recording protocol, and boundaries |
+| 17 | [Model Tiers](docs/17-Model-Tiers.md) | Which LLM tier each role runs on, and the upgrade-only override rule |
+| 18 | [Board](docs/18-Board.md) | The board's data model, recording protocol, and boundaries |
 
 ## Requirements
 
 - **Claude Code** — for the subagents and slash commands
 - **git** — worktrees are how parallel agents stay isolated
-- **Node 18+** — only for the board; nothing else in DevOS runs code
+- **Node 18+** — for the board and the installer; nothing else in DevOS runs code
 
 ## Extending DevOS
 

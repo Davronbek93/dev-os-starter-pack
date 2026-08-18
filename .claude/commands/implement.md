@@ -15,6 +15,6 @@ Task: $ARGUMENTS
 6. Update any docs your change invalidates, in the same branch (docs/06-Documentation-Standards.md).
 7. Verify each acceptance criterion explicitly and report the evidence per criterion, then prepare the PR per templates/pr-template.md.
 
-8. Record on the board as the task moves (docs/17-Board.md): `node board/cli.mjs state <id> IN_PROGRESS --actor agent:<role> --branch <branch>` when you start, `node board/cli.mjs state <id> REVIEW --actor agent:<role> --note "PR <link>"` when the PR is ready, `node board/cli.mjs block <id> "<reason>" --actor agent:<role>` whenever you stop and report.
+8. Record on the board as the task moves (docs/18-Board.md): `node board/cli.mjs state <id> IN_PROGRESS --actor agent:<role> --branch <branch>` when you start, `node board/cli.mjs state <id> REVIEW --actor agent:<role> --note "PR <link>"` when the PR is ready, `node board/cli.mjs block <id> "<reason>" --actor agent:<role>` whenever you stop and report.
 
 Stop when this task meets the Definition of Done (docs/04-Definition-of-Done.md) — do not start another task. If the task turns out too big, a contract needs changing, a dependency isn't done, or (in a wave) a needed file falls outside the Touches set: stop and report. Unrelated bugs: file them, don't fix them here.

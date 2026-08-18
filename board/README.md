@@ -3,7 +3,7 @@
 A local Kanban board over your task files. You add tasks; agents refine,
 implement, review, and test them; the board shows where everything is and what
 already happened. The model and its boundaries are specified in
-[docs/17-Board.md](../docs/17-Board.md) — this file is the operator's manual.
+[docs/18-Board.md](../docs/18-Board.md) — this file is the operator's manual.
 
 ```bash
 node board/server.mjs        # → http://127.0.0.1:4317
@@ -44,7 +44,10 @@ queue that `/board` drains in a Claude Code session you start.
 
 ## Configuration
 
-[`board.config.json`](board.config.json):
+Two files, layered: [`board/board.config.json`](board.config.json) ships the kit defaults,
+and `<dataDir>/board.config.json` holds the project's own — outside the kit, so a kit
+update never clobbers it. Later wins.
+
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -54,13 +57,15 @@ queue that `/board` drains in a Claude Code session you start.
 | `dataDir` | `.devos` | Where history and queue are written |
 | `port` | `4317` | Server port |
 | `parallelismCap` | `3` | Wave size the board suggests ([docs/16](../docs/16-Concurrency-Model.md)) |
-| `idPrefix` | `T` | Prefix for generated ids (`T-001`, `T-002`, …) |
+| `idPrefix` | `T` | Default track for generated ids (`T-1`, `T-2`, …); the full track list is discovered from the task files |
+| `idPad` | `0` | Zero-padding width for generated ids; `0` means none (`SV-15`, not `SV-015`) |
 
 Environment overrides, useful for trying the board against another checkout:
 `DEVOS_ROOT`, `DEVOS_TASKS_DIR`, `DEVOS_DATA_DIR`, `PORT`.
 
-The repo root is detected by walking up to the nearest `.git`, so the server can
-be started from anywhere.
+The root is the repository's **main worktree**, resolved even when the board is invoked
+from a linked worktree — so 18 parallel worktrees share one board instead of each getting
+their own (docs/18-Board.md § Boundaries).
 
 ## Data
 
@@ -104,8 +109,13 @@ Status changes are appended as patches (`{"id":…,"status":"done"}`) and folded
 on read, so the file stays append-only. `type` is the slash command to run:
 `plan`, `dispatch`, `implement`, `review-task`, `bug`.
 
-Both files are text and belong in git — the history is reviewable in a diff like
-everything else.
+### Git policy
+
+The history belongs in git — it is reviewable in a diff like everything else. The queue
+does not: a request is one machine's intent, and a merge conflict in an append-only inbox
+means nothing. The board writes `.devos/.gitignore` containing `queue.jsonl` the first
+time it writes anything, so this holds with no setup step. Commit `.devos/events.jsonl`
+and `.devos/.gitignore`.
 
 ## CLI reference
 
@@ -119,7 +129,7 @@ node board/cli.mjs <command> [args] [--flag value]
 | `show <id> [--json]` | One task with its full story |
 | `wave [--json]` | The next parallel-safe wave (advisory) |
 | `add "<title>" [--role R] [--goal G] [--milestone M]` | Create a BACKLOG task |
-| `state <id> <STATE> [--note N] [--wave W] [--branch B] [--actor A]` | Move a task: rewrites the file **and** records the transition |
+| `state <id> <STATE> [--note N] [--wave W] [--branch B] [--actor A]` | Move a task: rewrites the file **and** records the transition. A state it already has rewrites nothing |
 | `block <id> "<reason>" [--actor A]` | Park a task with a written blocker |
 | `unblock <id> [--actor A]` | Clear the blocker |
 | `note <id> "<text>" [--type review\|note] [--ref REF] [--actor A]` | Add a story line without changing state |
@@ -130,7 +140,7 @@ node board/cli.mjs <command> [args] [--flag value]
 
 Agents pass `--actor agent:<role>` so the story says who acted. The recording
 protocol — which command belongs at which point in the lifecycle — is the table
-in [docs/17-Board.md](../docs/17-Board.md#recording-protocol).
+in [docs/18-Board.md](../docs/18-Board.md#recording-protocol).
 
 ```bash
 node board/cli.mjs state T-014 IN_PROGRESS --actor agent:backend-engineer --branch feature/t-014-rate-limit

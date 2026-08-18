@@ -40,3 +40,5 @@ _none_
 
 ## Notes
 Open questions, hints, or constraints for the implementer. Empty is fine.
+
+Model choice is **not** per-task — it follows the role binding per [17-Model-Tiers.md](../docs/17-Model-Tiers.md); any dispatch-time upgrade override is recorded here (in Notes) by the orchestrator.
